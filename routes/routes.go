@@ -1,6 +1,8 @@
 package routes
 
 import (
+	"errors"
+
 	"github.com/NicolasBrandi/Go-API/database"
 	"github.com/NicolasBrandi/Go-API/models"
 	"github.com/gofiber/fiber/v2"
@@ -48,4 +50,32 @@ func GetUsers(c *fiber.Ctx) error {
 	}
 
 	return c.Status(200).JSON(respUsers)
+}
+
+func findUser(id int, user *models.User) error{
+	database.Database.Db.Find(&user, "id = ?", id)
+	//TODO: deal with err
+	if user.ID == 0 {
+		return errors.New("user does not exist")
+	}
+	return nil
+}
+
+func GetUser(c *fiber.Ctx) error{
+	id , err := c.ParamsInt("id")
+
+	var user models.User
+
+	if err != nil {
+		return c.Status(400).JSON("Enter an int")
+	}
+
+	//findUser is parsing the id to user, which I use to create respUser
+	if err := findUser(id, &user); err != nil{
+		return c.Status(400).JSON(err.Error())
+	}
+
+	responseUser:= CreateResponseUser(user)
+	return c.Status(200).JSON(responseUser)
+
 }
