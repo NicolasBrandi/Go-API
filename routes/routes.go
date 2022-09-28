@@ -19,6 +19,7 @@ func CreateResponseUser(userModel models.User) UserSer {
 }
 
 //ROUTES
+//First endpoint
 func CreateUser(c *fiber.Ctx) error{
 	var user models.User
 
@@ -30,4 +31,21 @@ func CreateUser(c *fiber.Ctx) error{
 	responseUser := CreateResponseUser(user)
 
 	return c.Status(200).JSON(responseUser)
+}
+
+//Second endpoint
+
+func GetUsers(c *fiber.Ctx) error {
+	users := []models.User{}
+
+	//Take the slice users and .Find() looks for all the matching var into the struct. Gorm gives back all the matching users
+	database.Database.Db.Find(&users)
+	respUsers := []UserSer{}
+
+	for _, user := range users{
+		respUser := CreateResponseUser(user)
+		respUsers = append(respUsers, respUser)
+	}
+
+	return c.Status(200).JSON(respUsers)
 }
