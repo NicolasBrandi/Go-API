@@ -79,3 +79,24 @@ func GetUser(c *fiber.Ctx) error{
 	return c.Status(200).JSON(responseUser)
 
 }
+
+func DeleteUser(c *fiber.Ctx) error{
+	id , err := c.ParamsInt("id")
+
+	var user models.User
+
+	if err != nil {
+		return c.Status(400).JSON("Enter an int")
+	}
+
+	//findUser is parsing the id to user, which I use to create respUser
+	if err := findUser(id, &user); err != nil{
+		return c.Status(400).JSON(err.Error())
+	}
+
+	if err := database.Database.Db.Delete(&user).Error; err != nil {
+		return c.Status(400).JSON(err.Error())
+	}
+
+	return c.Status(200).SendString("Deleted")
+}
